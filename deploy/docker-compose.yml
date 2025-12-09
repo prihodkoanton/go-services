@@ -1,0 +1,39 @@
+services:
+
+  user-db:
+    image: postgres:16
+    container_name: user-db
+    restart: always
+    env_file:
+      - ./services/user-service/.env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+  ports:
+    - "9999:5432"
+  volumes:
+    - user-db-data:/var/lib/postgresql/data
+
+  user-service:
+    build:
+      context: ../..
+      dockerfile: services/user-service/docker/Dockerfile
+    ports:
+      - "9998-9998"
+    env_file:
+      - ./services/user-service/.env
+    depends_on:
+      - user-db
+
+  migrate:
+    image: migrate/migrate
+    volumes:
+      - ./services/user-service/migrations:/migrations
+    command:
+      - path=/migrations -database postgres://${DB_USER}:${DB_PASSWORD}@user-db:5432/${DB_NAME}?sslmode=disable up
+    depends_on:
+      - user-db
+
+volumes:
+  user-db-data:
