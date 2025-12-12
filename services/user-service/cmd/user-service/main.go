@@ -1,16 +1,27 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
+	"strconv"
+
+	"github.com/prihodkoanton/go-services/services/user-service/db"
+	"github.com/prihodkoanton/go-services/services/user-service/internal/config"
+	"github.com/prihodkoanton/go-services/services/user-service/internal/repository"
+	"github.com/prihodkoanton/go-services/services/user-service/internal/service"
+	"github.com/prihodkoanton/go-services/services/user-service/internal/transport/http"
 )
 
 func main() {
-	fmt.Println("User service started on port 9090")
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		panic(err)
+	}
+	dbConnect, err := db.Connect(cfg)
+	if err != nil {
+		panic(err)
+	}
+	userRepository := repository.NewUserRepository(dbConnect)
+	userService := service.NewUserService(userRepository)
+	router := http.NewRouter(userService)
 
-	http.HandleFunc("/health", func(w http.ResponseWriter, request *http.Request) {
-		w.Write([]byte("OK"))
-	})
-
-	http.ListenAndServe(":9090", nil)
+	router.Run(":", strconv.Itoa(cfg.Server.Port))
 }
