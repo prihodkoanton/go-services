@@ -41,9 +41,9 @@ func LoadConfig() (*Config, error) {
 	}
 	cfg.Database.Port = dbPort
 
-	cfg.Database.User = getEnv("DB_USER", "postgres")
-	cfg.Database.Password = getEnv("DB_PASSWORD", "1234")
-	cfg.Database.Name = getEnv("DB_NAME", "user-service")
+	cfg.Database.User = getEnv("POSTGRES_USER", "postgres")
+	cfg.Database.Password = getEnv("POSTGRES_PASSWORD", "1234")
+	cfg.Database.Name = getEnv("POSTGRES_DB", "user_service")
 	cfg.Database.SSLMode = getEnv("DB_SSLMODE", "disable")
 
 	return cfg, nil

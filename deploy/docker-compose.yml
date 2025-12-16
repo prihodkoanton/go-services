@@ -1,35 +1,42 @@
 services:
-
   user-db:
     image: postgres:16
     container_name: user-db
-    restart: always
     env_file:
       - ../services/user-service/.env
     ports:
       - "9999:5432"
     volumes:
       - user-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  migrate:
+    image: migrate/migrate:latest
+    env_file:
+      - ../services/user-service/.env
+    volumes:
+      - ../services/user-service/migrations:/migrations
+      - ./run_migrate.sh:/run_migrate.sh
+    entrypoint: ["/bin/sh", "/run_migrate.sh"]
+    depends_on:
+      user-db:
+        condition: service_healthy
 
   user-service:
     build:
-      context: ../..
+      context: ..
       dockerfile: services/user-service/docker/Dockerfile
     ports:
       - "9998:9998"
     env_file:
       - ../services/user-service/.env
     depends_on:
-      - user-db
-
-  migrate:
-    image: migrate/migrate
-    volumes:
-      - ../services/user-service/migrations:/migrations
-    command:
-      - path=/migrations -database postgres://${DB_USER}:${DB_PASSWORD}@user-db:5432/${DB_NAME}?sslmode=disable up
-    depends_on:
-      - user-db
+      user-db:
+        condition: service_healthy
 
 volumes:
   user-db-data:

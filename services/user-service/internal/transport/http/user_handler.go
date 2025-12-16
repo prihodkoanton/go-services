@@ -31,6 +31,6 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	mapper.ToUserResponse(userModel)
-	c.JSON(http.StatusOK, gin.H{"message": "User created successfully"})
+	resp := mapper.ToUserResponse(userModel)
+	c.JSON(http.StatusOK, resp)
 }
