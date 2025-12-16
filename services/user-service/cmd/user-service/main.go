@@ -1,7 +1,7 @@
 package main
 
 import (
-	"strconv"
+	"fmt"
 
 	"github.com/prihodkoanton/go-services/services/user-service/db"
 	"github.com/prihodkoanton/go-services/services/user-service/internal/config"
@@ -15,13 +15,17 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
 	dbConnect, err := db.Connect(cfg)
 	if err != nil {
 		panic(err)
 	}
+
 	userRepository := repository.NewUserRepository(dbConnect)
 	userService := service.NewUserService(userRepository)
 	router := http.NewRouter(userService)
 
-	router.Run(":", strconv.Itoa(cfg.Server.Port))
+	if err := router.Run(fmt.Sprintf(":%d", cfg.Server.Port)); err != nil {
+		panic(err)
+	}
 }
