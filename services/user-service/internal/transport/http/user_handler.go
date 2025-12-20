@@ -34,3 +34,72 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 	resp := mapper.ToUserResponse(userModel)
 	c.JSON(http.StatusOK, resp)
 }
+
+func (h *UserHandler) GetUserById(c *gin.Context) {
+	var req dto.UserIDUri
+
+	if err := c.ShouldBindUri(&req); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	user, err := h.service.GetById(req.ID)
+	if err != nil {
+		return
+	}
+	resp := mapper.ToUserResponse(user)
+	c.JSON(http.StatusOK, resp)
+}
+
+func (h *UserHandler) UpdateUser(c *gin.Context) {
+	var req dto.UserRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	userModel := mapper.ToUser(&req)
+
+	err := h.service.Update(userModel)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	response := mapper.ToUserResponse(userModel)
+	c.JSON(http.StatusOK, response)
+}
+
+func (h *UserHandler) GetUserByEmail(c *gin.Context) {
+	var req dto.UserEmailUri
+
+	if err := c.ShouldBindUri(&req); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	user, err := h.service.GetByEmail(req.Email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	resp := mapper.ToUserResponse(user)
+	c.JSON(http.StatusOK, resp)
+}
+
+func (h *UserHandler) DeleteUser(c *gin.Context) {
+	var req dto.UserIDUri
+	if err := c.ShouldBindUri(&req); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	err := h.service.Delete(req.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Status(http.StatusAccepted)
+}
