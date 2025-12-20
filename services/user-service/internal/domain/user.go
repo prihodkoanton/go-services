@@ -11,4 +11,5 @@ type User struct {
 	CreatedAt  time.Time `gorm:"column:created_at;autoCreateTime" json:"created_at"`
 	ModifiedAt time.Time `gorm:"column:modified_at;autoUpdateTime" json:"modified_at"`
 	CreatedBy  int64     `gorm:"column:created_by" json:"created_by"`
+	IsDeleted  bool      `gorm:"column:is_deleted; default:false" json:"is_deleted"`
 }
