@@ -25,8 +25,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	userModel := mapper.ToUser(&req)
-	err := h.service.Create(userModel)
+	userModel, err := h.service.Create(&req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -53,15 +52,19 @@ func (h *UserHandler) GetUserById(c *gin.Context) {
 
 func (h *UserHandler) UpdateUser(c *gin.Context) {
 	var req dto.UserRequest
+	var id dto.UserIDUri
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
-	userModel := mapper.ToUser(&req)
+	if err := c.ShouldBindUri(&id); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
 
-	err := h.service.Update(userModel)
+	userModel, err := h.service.Update(&req, &id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
