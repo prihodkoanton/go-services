@@ -13,6 +13,6 @@ migrate \
   -verbose \
   -path=/migrations \
   -database "postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$DB_HOST:$DB_PORT/$POSTGRES_DB?sslmode=$DB_SSLMODE" \
-  up
+  up || true
 
 echo "Migrations finished"
