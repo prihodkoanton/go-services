@@ -8,6 +8,9 @@ import (
 	"github.com/prihodkoanton/go-services/services/user-service/internal/repository"
 	"github.com/prihodkoanton/go-services/services/user-service/internal/service"
 	"github.com/prihodkoanton/go-services/services/user-service/internal/transport/http"
+
+	_ "github.com/prihodkoanton/go-services/services/user-service/internal/transport/http/docs"
+	docs "github.com/prihodkoanton/go-services/services/user-service/internal/transport/http/docs"
 )
 
 func main() {
@@ -15,6 +18,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	docs.SwaggerInfo.BasePath = "/api/v1"
 
 	dbConnect, err := db.Connect(cfg)
 	if err != nil {
